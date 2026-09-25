@@ -1,0 +1,55 @@
+name: Databricks Dev Adopt Existing Resources
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  adopt:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_TOKEN_AUDIENCE: ${{ vars.DATABRICKS_TOKEN_AUDIENCE }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Verify Databricks identity
+        run: databricks current-user me
+
+      - name: Validate Civic bundle
+        working-directory: civic-signal-dbx
+        run: databricks bundle validate --target dev
+
+      - name: Bind existing Gold pipeline
+        working-directory: civic-signal-dbx
+        run: |
+          databricks bundle deployment bind \
+            pipe_civic_gold_dev \
+            ad53d1e6-78e3-44a3-a398-5baa97b3f80c \
+            --target dev \
+            --auto-approve
+
+      - name: Bind existing medallion job
+        working-directory: civic-signal-dbx
+        run: |
+          databricks bundle deployment bind \
+            job_civic_medallion_dev \
+            798297597001605 \
+            --target dev \
+            --auto-approve
+
+      - name: Preview deployment
+        working-directory: civic-signal-dbx
+        run: databricks bundle plan --target dev
