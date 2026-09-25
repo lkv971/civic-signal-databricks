@@ -1,0 +1,57 @@
+resources:
+  jobs:
+    job_civic_medallion_dev:
+      name: JOB_Civic_Medallion_Dev
+      tasks:
+        - task_key: bronze_incremental
+          disable_auto_optimization: true
+          disabled: false
+          email_notifications: {}
+          max_retries: 1
+          min_retry_interval_millis: 120000
+          notebook_task:
+            notebook_path: ../src/job_civic_medallion_dev/10_bronze_autoloader.ipynb
+            source: WORKSPACE
+          retry_on_timeout: true
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+        - task_key: silver_conformance
+          depends_on:
+            - task_key: bronze_incremental
+          disabled: false
+          email_notifications: {}
+          notebook_task:
+            notebook_path: ../src/job_civic_medallion_dev/11_silver_conformance.ipynb
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+        - task_key: silver_validation
+          depends_on:
+            - task_key: silver_conformance
+          disabled: false
+          email_notifications: {}
+          notebook_task:
+            notebook_path: ../src/job_civic_medallion_dev/12_silver_validation.ipynb
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+        - task_key: gold_declarative_pipeline
+          depends_on:
+            - task_key: silver_validation
+          disabled: false
+          email_notifications: {}
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.pipe_civic_gold_dev.id}
+          run_if: ALL_SUCCESS
+          timeout_seconds: 1800
+      email_notifications:
+        no_alert_for_skipped_runs: false
+      max_concurrent_runs: 1
+      performance_target: PERFORMANCE_OPTIMIZED
+      queue:
+        enabled: true
+      timeout_seconds: 0
+      webhook_notifications: {}

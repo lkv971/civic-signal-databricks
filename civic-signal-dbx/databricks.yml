@@ -1,0 +1,13 @@
+bundle:
+  name: "civic-signal-dbx"
+
+include:
+  - resources/*.yml
+  - resources/*/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405606252465872.12.azuredatabricks.net

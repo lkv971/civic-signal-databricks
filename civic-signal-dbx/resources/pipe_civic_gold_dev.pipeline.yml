@@ -1,0 +1,14 @@
+resources:
+  pipelines:
+    pipe_civic_gold_dev:
+      name: PIPE_Civic_Gold_Dev
+      libraries:
+        - glob:
+            include: ../src/pipe_civic_gold_dev/transformations/**
+      catalog: civic_signal_dbx_dev
+      channel: CURRENT
+      continuous: false
+      photon: true
+      root_path: ../src/pipe_civic_gold_dev
+      schema: gold
+      serverless: true
