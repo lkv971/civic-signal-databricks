@@ -3,6 +3,15 @@ name: Databricks Dev Deploy
 on:
   workflow_dispatch:
 
+  push:
+    branches:
+      - main
+    paths:
+      - "civic-signal-dbx/databricks.yml"
+      - "civic-signal-dbx/resources/**"
+      - "civic-signal-dbx/src/**"
+      - ".github/workflows/databricks-dev-deploy.yml"
+
 permissions:
   id-token: write
   contents: read
