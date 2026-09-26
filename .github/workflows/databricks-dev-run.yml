@@ -1,0 +1,37 @@
+name: Databricks Dev Run Medallion
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  run-medallion:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_TOKEN_AUDIENCE: ${{ vars.DATABRICKS_TOKEN_AUDIENCE }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Verify Databricks identity
+        run: databricks current-user me
+
+      - name: Validate Civic bundle
+        working-directory: civic-signal-dbx
+        run: databricks bundle validate --target dev
+
+      - name: Run Civic medallion job
+        working-directory: civic-signal-dbx
+        run: databricks bundle run job_civic_medallion_dev --target dev
